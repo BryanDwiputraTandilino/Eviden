@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Upload Enviden</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --hijau:#0e6b4f; --hijau-tua:#07382a; --hijau-garis:#2f8a6b; --hijau-muda:#e4f0ea;
+  --kertas:#ffffff; --latar:#eceff0; --garis:#dde4e0; --garis-tipis:#eaefec;
+  --tinta:#15211d; --tinta-2:#4f615a; --tinta-3:#85948d;
+  --merah:#9b2f2f; --merah-bg:#fbeded; --merah-garis:#e6c6c6;
+  --amber:#8a5a12; --amber-bg:#fcf4e6; --amber-garis:#eeddbf;
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--latar);color:var(--tinta);
+  font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;line-height:1.55;
+  padding-bottom:calc(56px + env(safe-area-inset-bottom,0px));
+}
+.wrap{max-width:620px;margin:0 auto}
+
+/* ---------- kop ---------- */
+.kop{
+  background:var(--hijau-tua);color:#fff;
+  padding:calc(30px + env(safe-area-inset-top,0px)) 24px 26px;
+  border-bottom:3px solid var(--hijau-garis);
+}
+.kop .lembaga{font-size:.97rem;font-weight:700;letter-spacing:-.01em;margin:0}
+.kop .unit{font-size:.84rem;color:#a8cfbf;margin:1px 0 20px;font-weight:500}
+.kop h1{
+  font-family:"Source Serif 4",Georgia,serif;font-weight:600;
+  font-size:2.05rem;line-height:1.12;letter-spacing:-.015em;margin:0 0 9px;
+}
+.kop .periode{margin:0;font-size:.89rem;color:#bcdbcd;max-width:44ch;line-height:1.5}
+
+/* ---------- bilah kemajuan ---------- */
+.kemajuan{height:4px;background:var(--garis);position:relative}
+.kemajuan i{display:block;height:100%;width:0;background:var(--hijau);transition:width .3s ease}
+
+/* ---------- lembar ---------- */
+.lembar{background:var(--kertas);border-bottom:1px solid var(--garis)}
+.bagian{padding:26px 24px;border-bottom:1px solid var(--garis-tipis)}
+.bagian:last-child{border-bottom:0}
+.judul{display:flex;align-items:baseline;gap:11px;margin-bottom:3px}
+.nomor{
+  flex:none;width:25px;height:25px;border-radius:50%;background:var(--hijau-muda);
+  color:var(--hijau);font-size:.8rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;align-self:flex-start;margin-top:1px
+}
+.judul h2{font-size:1.08rem;font-weight:700;margin:0;letter-spacing:-.015em}
+.ket{margin:0 0 20px 36px;font-size:.87rem;color:var(--tinta-3);line-height:1.5}
+
+/* ---------- isian ---------- */
+.isian{margin-bottom:17px}
+.isian:last-child{margin-bottom:0}
+label{display:block;font-size:.87rem;font-weight:600;margin-bottom:6px}
+.wajib{color:var(--merah);font-weight:500}
+.opsional{font-weight:500;color:var(--tinta-3)}
+input[type=text],input[type=tel],select{
+  width:100%;font:inherit;font-size:1rem;color:var(--tinta);background:var(--kertas);
+  border:1.5px solid var(--garis);border-radius:8px;padding:12px 13px;
+  transition:border-color .12s,box-shadow .12s
+}
+input:hover,select:hover{border-color:var(--tinta-3)}
+input:focus-visible,select:focus-visible,button:focus-visible,.unggah:focus-within{
+  outline:2.5px solid var(--hijau);outline-offset:2px;border-color:var(--hijau)
+}
+select{
+  appearance:none;cursor:pointer;padding-right:42px;
+  background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234f615a' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 13px center;background-size:19px
+}
+.salah{border-color:var(--merah)!important;background:var(--merah-bg)}
+.pesan{display:none;color:var(--merah);font-size:.83rem;margin-top:6px;font-weight:500}
+.pesan.tampil{display:block}
+
+/* ---------- pencarian faskes ---------- */
+.combo{position:relative}
+#cari{
+  padding-left:42px;
+  background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2385948d' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-4-4'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:left 13px center;background-size:19px
+}
+.daftar{
+  position:absolute;z-index:40;top:calc(100% + 5px);left:0;right:0;
+  max-height:300px;overflow-y:auto;background:var(--kertas);
+  border:1.5px solid var(--hijau);border-radius:10px;
+  box-shadow:0 16px 36px -14px rgba(7,56,42,.4);display:none
+}
+.daftar.tampil{display:block}
+.pilihan{padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--garis-tipis);line-height:1.35}
+.pilihan:last-child{border-bottom:0}
+.pilihan b{display:block;font-weight:600;font-size:.94rem}
+.pilihan span{font-size:.78rem;color:var(--tinta-3)}
+.pilihan mark{background:var(--hijau-muda);color:inherit;padding:0 1px;border-radius:2px}
+.pilihan[aria-selected=true],.pilihan:hover{background:var(--hijau-muda)}
+.nihil{padding:17px 14px;color:var(--tinta-3);font-size:.89rem}
+
+/* ---------- kartu faskes terpilih ---------- */
+.kartu{display:none;margin-top:15px;border:1.5px solid var(--hijau);border-radius:10px;overflow:hidden}
+.kartu.tampil{display:block}
+.kartu .nm{
+  background:var(--hijau);color:#fff;padding:13px 16px;
+  font-weight:700;font-size:1rem;line-height:1.3;letter-spacing:-.01em
+}
+.kartu .rinci{display:flex;background:var(--hijau-muda)}
+.kartu .rinci div{flex:1;padding:11px 14px;border-right:1px solid #c6ded2;min-width:0}
+.kartu .rinci div:last-child{border-right:0}
+.kartu dt{font-size:.72rem;color:#3d7a63;font-weight:600;margin-bottom:2px}
+.kartu dd{margin:0;font-size:.86rem;font-weight:700;color:var(--hijau-tua);word-break:break-word}
+.ganti{
+  display:block;width:100%;background:var(--kertas);border:0;border-top:1px solid #c6ded2;
+  padding:10px;font:inherit;font-size:.84rem;font-weight:600;color:var(--hijau);cursor:pointer
+}
+.ganti:hover{background:var(--hijau-muda)}
+
+/* ---------- status kiriman ---------- */
+.sudah{display:none;padding:13px 16px;font-size:.87rem;line-height:1.5;border-top:1px solid #c6ded2}
+.sudah.tampil{display:block}
+.sudah.periksa{background:var(--kertas);color:var(--tinta-3);font-weight:500}
+.sudah.terkunci{background:var(--merah-bg);color:var(--merah);border-top-color:var(--merah-garis)}
+.sudah b{display:block;font-weight:700;margin-top:3px}
+
+/* ---------- unggah ---------- */
+.unggah{
+  display:block;border:1.5px dashed var(--garis);border-radius:10px;background:var(--kertas);
+  padding:22px 16px;text-align:center;cursor:pointer;transition:border-color .12s,background .12s
+}
+.unggah:hover{border-color:var(--hijau);background:var(--hijau-muda)}
+.unggah.salah{border-color:var(--merah);background:var(--merah-bg)}
+.unggah svg{display:block;margin:0 auto 9px}
+.unggah b{display:block;font-size:.91rem;font-weight:600;margin-bottom:2px}
+.unggah small{color:var(--tinta-3);font-size:.81rem;font-weight:500}
+.unggah input{position:absolute;width:1px;height:1px;opacity:0}
+.sedang{display:none;padding:19px;text-align:center;color:var(--tinta-3);font-size:.89rem;
+  border:1.5px solid var(--garis);border-radius:10px}
+.sedang.tampil{display:block}
+.pratinjau{display:none;border:1.5px solid var(--hijau);border-radius:10px;overflow:hidden}
+.pratinjau.tampil{display:block}
+.pratinjau img{display:block;width:100%;max-height:280px;object-fit:contain;background:var(--latar)}
+.pratinjau .bar{display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:10px 13px;border-top:1px solid var(--garis);background:var(--kertas)}
+.pratinjau .bar small{color:var(--tinta-3);font-size:.81rem;font-weight:500}
+.tukar{background:var(--kertas);border:1.5px solid var(--garis);border-radius:7px;padding:6px 14px;
+  font:inherit;font-size:.83rem;font-weight:600;color:var(--tinta-2);cursor:pointer}
+.tukar:hover{border-color:var(--tinta-3)}
+
+/* ---------- konfirmasi & kirim ---------- */
+.konf{display:flex;gap:12px;align-items:flex-start;background:var(--amber-bg);
+  border:1.5px solid var(--amber-garis);border-radius:10px;padding:15px 16px}
+.konf.salah{border-color:var(--merah);background:var(--merah-bg)}
+.konf input{width:21px;height:21px;margin:1px 0 0;accent-color:var(--hijau);flex:none;cursor:pointer}
+.konf label{margin:0;font-weight:500;font-size:.9rem;line-height:1.45;cursor:pointer}
+.kirim{width:100%;margin-top:17px;background:var(--hijau);color:#fff;border:0;border-radius:9px;
+  padding:16px;font:inherit;font-size:1.02rem;font-weight:700;cursor:pointer;transition:background .12s}
+.kirim:hover:not(:disabled){background:var(--hijau-tua)}
+.kirim:disabled{opacity:.62;cursor:progress}
+.kabar{display:none;margin-top:14px;border-radius:9px;padding:13px 15px;font-size:.87rem;font-weight:500}
+.kabar.tampil{display:block}
+.kabar.buruk{background:var(--merah-bg);border:1.5px solid var(--merah-garis);color:var(--merah)}
+
+/* ---------- selesai ---------- */
+.selesai{display:none;background:var(--kertas);border-bottom:1px solid var(--garis);
+  text-align:center;padding:62px 28px}
+.selesai.tampil{display:block}
+.centang{width:60px;height:60px;margin:0 auto 22px;border-radius:50%;background:var(--hijau);
+  display:flex;align-items:center;justify-content:center}
+.selesai h2{font-family:"Source Serif 4",Georgia,serif;font-size:1.5rem;font-weight:600;
+  margin:0 0 10px;letter-spacing:-.015em}
+.selesai p{color:var(--tinta-2);margin:0 auto;max-width:36ch;font-size:.94rem}
+
+footer{padding:20px 24px calc(14px + env(safe-area-inset-bottom,0px));text-align:center;
+  font-size:.78rem;color:var(--tinta-3);line-height:1.6}
+
+@media(max-width:400px){
+  .kop{padding-left:18px;padding-right:18px}
+  .kop h1{font-size:1.78rem}
+  .bagian{padding-left:18px;padding-right:18px}
+  .ket{margin-left:0}
+  .kartu .rinci{display:block}
+  .kartu .rinci div{border-right:0;border-bottom:1px solid #c6ded2}
+  .kartu .rinci div:last-child{border-bottom:0}
+}
+@media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div id="layar-isi">
+  <header class="kop">
+    <p class="lembaga">BPJS Kesehatan</p>
+    <p class="unit">Kantor Cabang Makassar</p>
+    <h1>Upload Enviden</h1>
+    <p class="periode">Pendataan eviden Janji Layanan dan POROS pada fasilitas kesehatan tingkat pertama.</p>
+  </header>
+
+  <div class="kemajuan"><i id="bilah"></i></div>
+
+  <form class="lembar" id="form" novalidate>
+
+    <section class="bagian">
+      <div class="judul"><span class="nomor">1</span><h2>Fasilitas kesehatan</h2></div>
+      <p class="ket">Ketik sebagian nama saja, misalnya &ldquo;antang&rdquo; atau &ldquo;biodika&rdquo;. Jenis dan wilayah terisi otomatis.</p>
+
+      <div class="isian">
+        <label for="cari">Nama FKTP <span class="wajib">*</span></label>
+        <div class="combo">
+          <input type="text" id="cari" autocomplete="off" role="combobox" aria-expanded="false"
+                 aria-controls="daftar" aria-autocomplete="list" placeholder="Cari nama faskes">
+          <div class="daftar" id="daftar" role="listbox" aria-label="Hasil pencarian"></div>
+        </div>
+        <p class="pesan" id="err-faskes">Pilih nama faskes dari daftar yang muncul.</p>
+
+        <div class="kartu" id="kartu">
+          <div class="nm" id="k-nama"></div>
+          <dl class="rinci">
+            <div><dt>Jenis</dt><dd id="k-jenis"></dd></div>
+            <div><dt>Kab/Kota</dt><dd id="k-kab"></dd></div>
+            <div><dt>Kode</dt><dd id="k-kode"></dd></div>
+          </dl>
+          <div class="sudah" id="sudah"></div>
+          <button type="button" class="ganti" id="ganti">Ganti faskes</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="bagian">
+      <div class="judul"><span class="nomor">2</span><h2>Pengirim eviden</h2></div>
+      <p class="ket">Isi data diri Anda sendiri sebagai pengirim, bukan data pimpinan.</p>
+
+      <div class="isian">
+        <label for="nama">Nama yang mengirimkan eviden <span class="wajib">*</span></label>
+        <input type="text" id="nama" autocomplete="name" placeholder="Beserta gelar bila ada">
+        <p class="pesan" id="err-nama">Nama pengirim belum diisi.</p>
+      </div>
+
+      <div class="isian">
+        <label for="jabatan">Jabatan <span class="wajib">*</span></label>
+        <select id="jabatan">
+          <option value="">Pilih jabatan</option>
+          <option>Pimpinan</option>
+          <option>PIC</option>
+          <option>JKN</option>
+          <option>PIPP</option>
+          <option>Administrasi Lainnya</option>
+        </select>
+        <p class="pesan" id="err-jabatan">Jabatan belum dipilih.</p>
+      </div>
+
+      <div class="isian" id="isian-lain" hidden>
+        <label for="lain">Sebutkan jabatan Anda <span class="wajib">*</span></label>
+        <input type="text" id="lain" placeholder="Misalnya: Bendahara, Rekam Medis">
+        <p class="pesan" id="err-lain">Sebutkan jabatan Anda.</p>
+      </div>
+
+      <div class="isian">
+        <label for="hp">Nomor telepon aktif <span class="wajib">*</span></label>
+        <input type="tel" id="hp" inputmode="numeric" autocomplete="tel" placeholder="08xxxxxxxxxx">
+        <p class="pesan" id="err-hp">Masukkan nomor telepon yang benar, minimal 10 angka.</p>
+      </div>
+    </section>
+
+    <section class="bagian">
+      <div class="judul"><span class="nomor">3</span><h2>Berkas eviden</h2></div>
+      <p class="ket">Foto media yang terpasang di faskes Anda. Boleh langsung dari kamera, ukuran besar dikecilkan otomatis.</p>
+
+      <div class="isian">
+        <label for="f-jl">Eviden Janji Layanan <span class="wajib">*</span></label>
+        <label class="unggah" id="kotak-jl" for="f-jl">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0e6b4f" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2.5" y="5" width="19" height="15" rx="2.5"/><circle cx="12" cy="12.5" r="3.6"/><path d="M8 5l1.4-2h5.2L16 5"/>
+          </svg>
+          <b>Ketuk untuk memilih foto</b>
+          <small>Media Janji Layanan yang terpasang di faskes</small>
+          <input type="file" id="f-jl" accept="image/*">
+        </label>
+        <div class="sedang" id="sedang-jl">Memproses foto&hellip;</div>
+        <div class="pratinjau" id="pra-jl">
+          <img id="img-jl" alt="Pratinjau eviden Janji Layanan">
+          <div class="bar"><small id="info-jl"></small>
+            <button type="button" class="tukar" id="tukar-jl">Ganti foto</button></div>
+        </div>
+        <p class="pesan" id="err-jl">Foto eviden Janji Layanan belum diunggah.</p>
+      </div>
+
+      <div class="isian">
+        <label for="f-pr">Eviden POROS <span class="wajib">*</span></label>
+        <label class="unggah" id="kotak-pr" for="f-pr">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0e6b4f" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2.5" y="5" width="19" height="15" rx="2.5"/><circle cx="12" cy="12.5" r="3.6"/><path d="M8 5l1.4-2h5.2L16 5"/>
+          </svg>
+          <b>Ketuk untuk memilih foto</b>
+          <small>X-banner atau poster POROS, kode QR terlihat jelas</small>
+          <input type="file" id="f-pr" accept="image/*">
+        </label>
+        <div class="sedang" id="sedang-pr">Memproses foto&hellip;</div>
+        <div class="pratinjau" id="pra-pr">
+          <img id="img-pr" alt="Pratinjau eviden POROS">
+          <div class="bar"><small id="info-pr"></small>
+            <button type="button" class="tukar" id="tukar-pr">Ganti foto</button></div>
+        </div>
+        <p class="pesan" id="err-pr">Foto eviden POROS belum diunggah.</p>
+      </div>
+    </section>
+
+    <section class="bagian">
+      <div class="konf" id="kotak-konf">
+        <input type="checkbox" id="konf">
+        <label for="konf">Saya menyatakan seluruh data dan foto di atas benar, serta merupakan kondisi faskes yang saya wakili.</label>
+      </div>
+      <p class="pesan" id="err-konf">Centang pernyataan di atas sebelum mengirim.</p>
+      <p class="pesan" id="ringkas"></p>
+      <button type="submit" class="kirim" id="kirim">Kirim eviden</button>
+      <div class="kabar buruk" id="gagal"></div>
+    </section>
+  </form>
+</div>
+
+<div class="selesai" id="layar-selesai">
+  <div class="centang"><svg width="29" height="29" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 7"/></svg></div>
+  <h2>Eviden sudah terkirim</h2>
+  <p id="pesan-selesai"></p>
+</div>
+
+<footer>339 FKTP terdaftar di wilayah kerja Kantor Cabang Makassar<br>Makassar &middot; Gowa &middot; Maros &middot; Pangkep &middot; Takalar</footer>
+</div>
+
+<script>
+const URL_TUJUAN = "https://script.google.com/macros/s/AKfycbw28RNLtmXwIQcCwUsKktLCYUc7LFR31i0vr3JSd0Y3A4TkO-7vYiCVvih5vXzHT-zA/exec";
+const DATA = [["BALAI KESEHATAN JALA MEDIKA LA","KLINIK TNI","MAKASSAR","3420023"],["BALAI PENGOBATAN YAKES TELKOM","KLINIK PRATAMA","MAKASSAR","0342B022"],["BHAYANGKARA WICAKSANA LAGHAWA","KLINIK POLRI","KAB. PANGKEP","3280002"],["BP INDAH AYU","KLINIK PRATAMA","MAKASSAR","0342B011"],["BP KESEHATAN PEMPROV SUL-SEL","KLINIK PRATAMA","MAKASSAR","0342U036"],["BRIMEDIKA","KLINIK PRATAMA","MAKASSAR","0342B013"],["DR AFRIDA NOOR KOMALASARI","TPMD","KAB. PANGKEP","0328U009"],["DR ARNILLA TRINANDA B","TPMD","KAB. TAKALAR","0324U013"],["DR HARLELAWATI","TPMD","KAB. GOWA","0325U019"],["DR RADIAH","TPMD","KAB. TAKALAR","0324U015"],["DR. AGNES SENTOSA","TPMD","MAKASSAR","0342U020"],["DR. ARYANTI ABD. RAZAK","TPMD","MAKASSAR","0342U114"],["DR. FRIDA HOESAN","TPMD","MAKASSAR","0342U087"],["DR. GUSTI","TPMD","MAKASSAR","0342U005"],["DR. HILDA M. SINARTIO","TPMD","KAB. GOWA","0325U014"],["DR. HJ. ANDI MUDDARIAH","TPMD","KAB. PANGKEP","0328U002"],["DR. HJ. DAHLIA, M.KES","TPMD","MAKASSAR","0342U026"],["DR. HJ. ST. NURLIA SANUSI","TPMD","KAB. PANGKEP","0328U001"],["DR. LENNY KUSUMAWATI","TPMD","MAKASSAR","0342U113"],["DR. MARIE LYDIA TUNAEDI","TPMD","MAKASSAR","0342U090"],["DR. NUR SAIDAH SIRAJUDDIN","TPMD","MAKASSAR","0342U097"],["DR. SITI PERMANA GANDASASMITA","TPMD","MAKASSAR","0342U082"],["DR. SUSANA SUTJIADI","TPMD","MAKASSAR","0342U099"],["DR. TRISNAWATY ABBAS","TPMD","MAKASSAR","0342U007"],["DR. ULFA MUTMAINNAH","TPMD","MAKASSAR","0342U126"],["DR. VERRA RUDI MAMAHIT","TPMD","KAB. GOWA","0325U012"],["DR. WAWAN HENDRAWAN HAMKA","TPMD","MAKASSAR","0342U088"],["DR. YURIANI","TPMD","MAKASSAR","0342U125"],["DR.ALAMSYAH A.BACHTIAR","TPMD","KAB. GOWA","0325U005"],["DR.H. NAJAMUDDIN, M.KES.","TPMD","KAB. PANGKEP","0328U003"],["DR.H.A.FIRMAN JAYA,M.KES","TPMD","KAB. MAROS","0327U004"],["DR.H.MUNIR,M.KES","TPMD","KAB. TAKALAR","0324U006"],["DR.H.RUSLAN RAMLI","TPMD","KAB. TAKALAR","0324U003"],["DR.HJ.RAMLAH ACHMAD, M.KES","TPMD","KAB. MAROS","0327U006"],["DR.HJ.SITTI MARYAM HABA,M.KES","TPMD","KAB. MAROS","0327U015"],["DR.ROMI MAULIZA FAUZI","TPMD","KAB. TAKALAR","0324U012"],["DRG. ARMAWATI HAMDANI","TPMDG","KAB. GOWA","0325G002"],["DRG. FEBRIANY","TPMDG","MAKASSAR","0342G046"],["DRG. FIRLI AFRIANTI SYAKH","TPMDG","MAKASSAR","0342G045"],["DRG. FURMAS LOANITA","TPMDG","MAKASSAR","0342G047"],["DRG. HJ. FAKHIRA KURNIAWATY H","TPMDG","KAB. MAROS","0327G005"],["DRG. IHYANA MALIK","TPMDG","KAB. TAKALAR","0324G001"],["DRG. NURHIDAYANTI","TPMDG","KAB. TAKALAR","0324G002"],["DRG. WEBUNGA SABBE DARWIS","TPMDG","KAB. TAKALAR","0324G005"],["DRG.ANDI SUMIDARTI,M.KES","TPMDG","MAKASSAR","0342G026"],["DRG.ANDI UMRAH LATEKO","TPMDG","MAKASSAR","0342G016"],["DRG.ANKIE SANGADI","TPMDG","MAKASSAR","0342G015"],["DRG.H.ABDUL DJALIL","TPMDG","MAKASSAR","0342G017"],["DRG.HJ.YAYI MANGGARSARI,M.KES","TPMDG","MAKASSAR","0342G020"],["DRG.MARYUNIATI,M.KES","TPMDG","MAKASSAR","0342G014"],["DRG.NIRWANA","TPMDG","MAKASSAR","0342G019"],["DRG.RITA DEWI","TPMDG","MAKASSAR","0342G025"],["FAJAR MEDICAL CENTRE","KLINIK PRATAMA","MAKASSAR","0342B095"],["FAKULTAS KEDOKTERAN UNHAS","KLINIK PRATAMA","MAKASSAR","0342B111"],["FAMILY DOCTOR'S CLINIC","KLINIK PRATAMA","MAKASSAR","0342B121"],["FAMILY MEDICAL CLINIK","KLINIK PRATAMA","MAKASSAR","0342B032"],["GUNUNG SARI MEDICAL CLINIC","KLINIK PRATAMA","MAKASSAR","0342B085"],["HEALTH AND NUTRITION CLINIC","KLINIK PRATAMA","MAKASSAR","0342U045"],["I MEDICAL","KLINIK PRATAMA","MAKASSAR","0342B091"],["KLINIK 24 JAM INGGIT MEDIKA","KLINIK PRATAMA","MAKASSAR","0342U042"],["KLINIK A3 MEDIKA","KLINIK PRATAMA","MAKASSAR","0342B112"],["KLINIK ADARAEN NUR SYIFA","KLINIK PRATAMA","MAKASSAR","0342U030"],["KLINIK AFANDI TIGA PUTRA","KLINIK PRATAMA","KAB. TAKALAR","0324B002"],["KLINIK AISYIYAH RAHMIJAH KADUP","KLINIK PRATAMA","KAB. GOWA","0325B027"],["KLINIK ALIYYA","KLINIK PRATAMA","MAKASSAR","0342U041"],["KLINIK ANINDHITA","KLINIK POLRI","KAB. MAROS","3270009"],["KLINIK ANTAM","KLINIK PRATAMA","MAKASSAR","0342B107"],["KLINIK ARHANUD 16/SBC","KLINIK TNI","KAB. MAROS","3420010"],["KLINIK ARIFAH MEDIKA","KLINIK PRATAMA","KAB. MAROS","0327B003"],["KLINIK ARITHA","KLINIK PRATAMA","MAKASSAR","0342B082"],["KLINIK ARIZKI","KLINIK PRATAMA","KAB. MAROS","0327B013"],["KLINIK ARSHI XYLOS MEDIKA","KLINIK PRATAMA","KAB. GOWA","0325B026"],["KLINIK ARTA","KLINIK PRATAMA","KAB. GOWA","0325B015"],["KLINIK ASAHI","KLINIK PRATAMA","MAKASSAR","0342U002"],["KLINIK ASSYIFA PHARMACON","KLINIK PRATAMA","MAKASSAR","0342B066"],["KLINIK AZKA NADHIFAH","KLINIK PRATAMA","MAKASSAR","0342B024"],["KLINIK BAHARUDDIN SURYOBROTO","KLINIK PRATAMA","MAKASSAR","0342B126"],["KLINIK BIDDOKKES PANAIKANG","KLINIK POLRI","MAKASSAR","3420024"],["KLINIK BIDDOKKES POLDA SULSEL","KLINIK POLRI","MAKASSAR","3420026"],["KLINIK BIODIKA (GOWA)","KLINIK PRATAMA","KAB. GOWA","0325B013"],["KLINIK BIODIKA (MAKASSAR)","KLINIK PRATAMA","MAKASSAR","0342B106"],["KLINIK BKIA RAKYAT","KLINIK PRATAMA","MAKASSAR","0342B084"],["KLINIK BOSOWA","KLINIK PRATAMA","MAKASSAR","0342B096"],["KLINIK CADET BUMI SERAM MEDIKA","KLINIK PRATAMA","MAKASSAR","0342B076"],["KLINIK DAN LABORATORIUM 123","KLINIK PRATAMA","MAKASSAR","0342B080"],["KLINIK DEN A","KLINIK POLRI","MAKASSAR","3420025"],["KLINIK DENKESLAP","KLINIK TNI","MAKASSAR","3420114"],["KLINIK DENMA KOOPSAU II","KLINIK TNI","MAKASSAR","3420014"],["KLINIK DIAN","KLINIK PRATAMA","MAKASSAR","0342B034"],["KLINIK DOMPET DHUAFA","KLINIK PRATAMA","MAKASSAR","0342B120"],["KLINIK DR ANNA S HAMDANY","KLINIK PRATAMA","MAKASSAR","0342B093"],["KLINIK DR FENDY DWIMARTYONO","KLINIK PRATAMA","KAB. MAROS","0327B001"],["KLINIK DR. MUFLIHA J.A PARAMMA","KLINIK PRATAMA","KAB. GOWA","0325B009"],["KLINIK DR. RACHMAT","KLINIK PRATAMA","MAKASSAR","0342B083"],["KLINIK DR. SAHARDJO RUTAN","KLINIK PRATAMA","MAKASSAR","0342B125"],["KLINIK FARIDA SEHAT","KLINIK PRATAMA","MAKASSAR","0342B027"],["KLINIK FAUZIAH","KLINIK PRATAMA","MAKASSAR","0342B031"],["KLINIK GOA RIA","KLINIK PRATAMA","MAKASSAR","0342B033"],["KLINIK H. M. ARIFIN LOLO","KLINIK PRATAMA","MAKASSAR","0342B119"],["KLINIK HAN MEDIKA","KLINIK PRATAMA","KAB. TAKALAR","0324B003"],["KLINIK HILAL MEDIKA","KLINIK PRATAMA","MAKASSAR","0342B075"],["KLINIK HJ. TITIEK SUWATI","KLINIK PRATAMA","MAKASSAR","0342B117"],["KLINIK HK MEDICAL CENTER","KLINIK PRATAMA","MAKASSAR","0342B038"],["KLINIK JEDDAH","KLINIK PRATAMA","MAKASSAR","0342B100"],["KLINIK KAMPAR MEDIKA","KLINIK PRATAMA","KAB. TAKALAR","0324B004"],["KLINIK KARYA ABADI MEDIKA","KLINIK PRATAMA","MAKASSAR","0342B122"],["KLINIK KIDDY FARMA","KLINIK PRATAMA","MAKASSAR","0342B108"],["KLINIK KIMIA FARMA AHMAD YANI","KLINIK PRATAMA","MAKASSAR","0342B042"],["KLINIK KIMIA FARMA ALAUDDIN","KLINIK PRATAMA","MAKASSAR","0342B052"],["KLINIK KIMIA FARMA BTP","KLINIK PRATAMA","MAKASSAR","0342B057"],["KLINIK KIMIA FARMA CENDRAWASIH","KLINIK PRATAMA","MAKASSAR","0342B012"],["KLINIK KIMIA FARMA DG. TATA","KLINIK PRATAMA","MAKASSAR","0342U091"],["KLINIK KIMIA FARMA ERLINA","KLINIK PRATAMA","MAKASSAR","0342U095"],["KLINIK KIMIA FARMA GOWA","KLINIK PRATAMA","KAB. GOWA","0325B003"],["KLINIK KIMIA FARMA HASANUDDIN","KLINIK PRATAMA","MAKASSAR","0342U094"],["KLINIK KIMIA FARMA HERTASNING","KLINIK PRATAMA","MAKASSAR","0342U092"],["KLINIK KIMIA FARMA MAROS","KLINIK PRATAMA","KAB. MAROS","0327B004"],["KLINIK KIMIA FARMA PANGKEP","KLINIK PRATAMA","KAB. PANGKEP","0328B005"],["KLINIK KIMIA FARMA PETTARANI","KLINIK PRATAMA","MAKASSAR","0342B043"],["KLINIK KIMIA FARMA RATULANGI","KLINIK PRATAMA","MAKASSAR","0342U093"],["KLINIK KIMIA FARMA SUDIANG","KLINIK PRATAMA","MAKASSAR","0342B054"],["KLINIK KIRANI","KLINIK PRATAMA","MAKASSAR","0342B037"],["KLINIK LACASINO","KLINIK PRATAMA","MAKASSAR","0342U039"],["KLINIK LIFIYURA","KLINIK PRATAMA","MAKASSAR","0342U081"],["KLINIK MADISING UTAMA","KLINIK PRATAMA","MAKASSAR","0342U034"],["KLINIK MAPALA MEDICAL","KLINIK PRATAMA","MAKASSAR","0342B087"],["KLINIK MEDIKA FARMA","KLINIK PRATAMA","MAKASSAR","0342B109"],["KLINIK MEDIKA PUTRA","KLINIK PRATAMA","KAB. GOWA","0325B001"],["KLINIK MULIA","KLINIK PRATAMA","KAB. GOWA","0325B018"],["KLINIK MUNAWWARAH","KLINIK PRATAMA","KAB. PANGKEP","0328B003"],["KLINIK MUSAFIR UTAMA","KLINIK PRATAMA","MAKASSAR","0342B046"],["KLINIK MUTIARA MEDIKA","KLINIK PRATAMA","MAKASSAR","0342U086"],["KLINIK NABILAH","KLINIK PRATAMA","KAB. GOWA","0325B006"],["KLINIK NADENA","KLINIK PRATAMA","MAKASSAR","0342B102"],["KLINIK NUHRINTAMA","KLINIK PRATAMA","KAB. GOWA","0325B007"],["KLINIK NUR ASY SYIFAA","KLINIK PRATAMA","MAKASSAR","0342B063"],["KLINIK NUR ICHSAN","KLINIK PRATAMA","MAKASSAR","0342U035"],["KLINIK NURRIZKY","KLINIK PRATAMA","KAB. GOWA","0325B004"],["KLINIK PADA IDI MEDICAL CENTER","KLINIK PRATAMA","MAKASSAR","0342B048"],["KLINIK PADAIDI MEDICAL C II","KLINIK PRATAMA","MAKASSAR","0342B113"],["KLINIK PAJJAIYANG","KLINIK PRATAMA","MAKASSAR","3420107"],["KLINIK PATRIA LESTARI","KLINIK PRATAMA","KAB. GOWA","0325B016"],["KLINIK PELABUHAN","KLINIK POLRI","MAKASSAR","3420019"],["KLINIK PLN UIW SULSELBAR","KLINIK PRATAMA","MAKASSAR","0342B086"],["KLINIK POLITEKNIK PENERBANGAN","KLINIK PRATAMA","KAB. MAROS","0327B011"],["KLINIK POLKES 14.09.06 MAROS","KLINIK TNI","KAB. MAROS","3270005"],["KLINIK POLRES TAKALAR","KLINIK POLRI","KAB. TAKALAR","3240009"],["KLINIK POLRESTABES MAKASAR","KLINIK POLRI","MAKASSAR","3420020"],["KLINIK PRATAMA ASY SYIFA","KLINIK PRATAMA","KAB. MAROS","0327B010"],["KLINIK PRATAMA BOTOLEMPANGANG","KLINIK PRATAMA","KAB. GOWA","0325B023"],["KLINIK PRATAMA DIVIF 3 KOSTRAD","KLINIK TNI","KAB. GOWA","0325B010"],["KLINIK PRATAMA DR DARWIS","KLINIK PRATAMA","KAB. GOWA","0325B012"],["KLINIK PRATAMA ENINO","KLINIK PRATAMA","MAKASSAR","0342B123"],["KLINIK PRATAMA H3","KLINIK PRATAMA","KAB. GOWA","0325B019"],["KLINIK PRATAMA PATARAJA","KLINIK TNI","KAB. MAROS","3270006"],["KLINIK PRATAMA RJ AL-HIKAM","KLINIK PRATAMA","MAKASSAR","0342B023"],["KLINIK PRATAMA SINTOMU INA U","KLINIK PRATAMA","MAKASSAR","0342B104"],["KLINIK PRATAMA UNHAS BARAYA","KLINIK PRATAMA","MAKASSAR","0342B114"],["KLINIK PRATAMA ZASKIA MEDICAL","KLINIK PRATAMA","KAB. GOWA","0325B011"],["KLINIK PROF.DR. BACHTIAR RAZAK","KLINIK PRATAMA","MAKASSAR","0342U028"],["KLINIK PT. SEMEN B MAROS","KLINIK PRATAMA","KAB. MAROS","0327U009"],["KLINIK RAHAYU MEDIKA","KLINIK PRATAMA","KAB. GOWA","0325B024"],["KLINIK RUFAIDAH MEDIKA","KLINIK PRATAMA","KAB. GOWA","0325B020"],["KLINIK RUMAH SEHAT BAZNAS MAKA","KLINIK PRATAMA","MAKASSAR","0342B118"],["KLINIK SALSABILA","KLINIK PRATAMA","MAKASSAR","0342B069"],["KLINIK SASQIA","KLINIK PRATAMA","MAKASSAR","3420108"],["KLINIK SAT BRIMOB MAKASSAR","KLINIK POLRI","MAKASSAR","3420021"],["KLINIK SEHAT","KLINIK PRATAMA","MAKASSAR","0342U048"],["KLINIK SEROJA","KLINIK PRATAMA","MAKASSAR","0342B025"],["KLINIK SETIA KAWAN","KLINIK PRATAMA","KAB. MAROS","0327B005"],["KLINIK SHAFIA MEDIKA","KLINIK PRATAMA","MAKASSAR","0342B061"],["KLINIK SIKAMPOTTA","KLINIK PRATAMA","MAKASSAR","0342B035"],["KLINIK SOPHIARA","KLINIK PRATAMA","MAKASSAR","0342U029"],["KLINIK SRI AKBAR MEDIKA","KLINIK PRATAMA","KAB. GOWA","0325B025"],["KLINIK SUMBER HIDUP","KLINIK PRATAMA","MAKASSAR","0342U089"],["KLINIK TAENG TA MEDICA","KLINIK PRATAMA","KAB. GOWA","0325B017"],["KLINIK TELKOMEDIKA","KLINIK PRATAMA","MAKASSAR","0342B124"],["KLINIK THIBBUN NABAWI MEDICAL","KLINIK PRATAMA","MAKASSAR","0342B099"],["KLINIK TRANSIT","KLINIK PRATAMA","KAB. MAROS","0327B007"],["KLINIK UKHUWAH","KLINIK PRATAMA","MAKASSAR","0342B089"],["KLINIK UNISMUH MEDICAL CENTRE","KLINIK PRATAMA","MAKASSAR","0342B047"],["KLINIK UPT PELATIHAN KESEHATAN","KLINIK PRATAMA","MAKASSAR","3420106"],["KLINIK VITA HEALTH PRATAMA","KLINIK PRATAMA","MAKASSAR","0342B081"],["KLINIK WARAS","KLINIK PRATAMA","MAKASSAR","0342U040"],["KLINIK WIRAHUSADA","KLINIK PRATAMA","MAKASSAR","0342B078"],["KLINIK YASIN","KLINIK PRATAMA","MAKASSAR","0342B049"],["NOENI MEDIKA","KLINIK PRATAMA","KAB. MAROS","0327B012"],["PERSADA MEDICAL","KLINIK PRATAMA","MAKASSAR","0342B105"],["POLI BRIGIF 3","KLINIK TNI","KAB. MAROS","3270001"],["POLI RINDAM","KLINIK TNI","KAB. GOWA","3250004"],["POLI YONARMED","KLINIK TNI","MAKASSAR","3420006"],["POLI YONIF 431","KLINIK TNI","KAB. MAROS","3270002"],["POLI YONIF 432","KLINIK TNI","KAB. MAROS","3270003"],["POLI YONIF 433","KLINIK TNI","KAB. MAROS","3270004"],["POLI YONIF 700","KLINIK TNI","MAKASSAR","3420007"],["POLI YONKAV 10","KLINIK TNI","MAKASSAR","3420008"],["POLI YONZIPUR","KLINIK TNI","MAKASSAR","3420009"],["POLIKLINIK POLAIR POLDA SULSEL","KLINIK POLRI","MAKASSAR","3422002"],["POLIKLINIK WIRA BHAYANGKARA M","KLINIK POLRI","KAB. GOWA","3250006"],["POLKES 07.09.02 GOWA","KLINIK TNI","KAB. GOWA","3250005"],["POLKES 14.09.02 MONGINSIDI MKS","KLINIK TNI","MAKASSAR","3420013"],["POLKES 14.09.18 PANGKEP","KLINIK TNI","KAB. PANGKEP","3280001"],["POLKES MAKODAM","KLINIK TNI","MAKASSAR","3420012"],["POSKES 07.10.09 TAKALAR","KLINIK TNI","KAB. TAKALAR","3240008"],["PUSKESMAS AENG TOWA","PUSKESMAS","KAB. TAKALAR","18020102"],["PUSKESMAS ANDALAS","PUSKESMAS","MAKASSAR","18010101"],["PUSKESMAS ANTANG","PUSKESMAS","MAKASSAR","18010502"],["PUSKESMAS ANTANG II","PUSKESMAS","MAKASSAR","18010504"],["PUSKESMAS ANTARA","PUSKESMAS","MAKASSAR","18011103"],["PUSKESMAS BAJENG","PUSKESMAS","KAB. GOWA","18030501"],["PUSKESMAS BALLAPARANG","PUSKESMAS","MAKASSAR","3420118"],["PUSKESMAS BALOCCI","PUSKESMAS","KAB. PANGKEP","18050201"],["PUSKESMAS BANGKALA","PUSKESMAS","MAKASSAR","3420115"],["PUSKESMAS BANTIMALA","PUSKESMAS","KAB. PANGKEP","18050202"],["PUSKESMAS BANTIMURUNG","PUSKESMAS","KAB. MAROS","18040101"],["PUSKESMAS BARA-BARAYA","PUSKESMAS","MAKASSAR","18010601"],["PUSKESMAS BARANG LOMPO","PUSKESMAS","MAKASSAR","3420103"],["PUSKESMAS BARING","PUSKESMAS","KAB. PANGKEP","3280105"],["PUSKESMAS BAROMBONG","PUSKESMAS","MAKASSAR","18010706"],["PUSKESMAS BATUA","PUSKESMAS","MAKASSAR","18010501"],["PUSKESMAS BATUMALONRO","PUSKESMAS","KAB. GOWA","3250104"],["PUSKESMAS BIRA","PUSKESMAS","MAKASSAR","18011102"],["PUSKESMAS BONTO PERAK","PUSKESMAS","KAB. PANGKEP","18050103"],["PUSKESMAS BONTOA","PUSKESMAS","KAB. MAROS","18040601"],["PUSKESMAS BONTOKASSI","PUSKESMAS","KAB. TAKALAR","3241000"],["PUSKESMAS BONTOLEMPANGAN","PUSKESMAS","KAB. GOWA","18031004"],["PUSKESMAS BONTOLEMPANGAN II","PUSKESMAS","KAB. GOWA","3251001"],["PUSKESMAS BONTOMANGAPE","PUSKESMAS","KAB. TAKALAR","3241002"],["PUSKESMAS BONTOMARANNU (GOWA)","PUSKESMAS","KAB. GOWA","18030801"],["PUSKESMAS BONTOMARANNU (TAKALAR)","PUSKESMAS","KAB. TAKALAR","18020602"],["PUSKESMAS BONTONOMPO I.","PUSKESMAS","KAB. GOWA","18030301"],["PUSKESMAS BONTONOMPO II.","PUSKESMAS","KAB. GOWA","18030302"],["PUSKESMAS BOWONG CINDEA","PUSKESMAS","KAB. PANGKEP","18050302"],["PUSKESMAS BULUKUNYI","PUSKESMAS","KAB. TAKALAR","18020403"],["PUSKESMAS BULUROKENG","PUSKESMAS","MAKASSAR","3420109"],["PUSKESMAS BUNGORO","PUSKESMAS","KAB. PANGKEP","18050301"],["PUSKESMAS CAMBA","PUSKESMAS","KAB. MAROS","18040201"],["PUSKESMAS CENDRAWASIH","PUSKESMAS","MAKASSAR","18010801"],["PUSKESMAS CENRANA","PUSKESMAS","KAB. MAROS","18040502"],["PUSKESMAS DAHLIAH","PUSKESMAS","MAKASSAR","18010202"],["PUSKESMAS DAYA","PUSKESMAS","MAKASSAR","3421001"],["PUSKESMAS GALESONG SELATAN","PUSKESMAS","KAB. TAKALAR","18020601"],["PUSKESMAS GALESONG UTARA","PUSKESMAS","KAB. TAKALAR","18020101"],["PUSKESMAS GENTUNGAN","PUSKESMAS","KAB. GOWA","18030502"],["PUSKESMAS JONGAYA","PUSKESMAS","MAKASSAR","18010701"],["PUSKESMAS KALABIRANG","PUSKESMAS","KAB. PANGKEP","18050102"],["PUSKESMAS KALUKUBODOA","PUSKESMAS","MAKASSAR","18010902"],["PUSKESMAS KAMPILI","PUSKESMAS","KAB. GOWA","18030402"],["PUSKESMAS KANGJILO","PUSKESMAS","KAB. GOWA","18031001"],["PUSKESMAS KAPASA","PUSKESMAS","MAKASSAR","3420105"],["PUSKESMAS KARUWISI","PUSKESMAS","MAKASSAR","18010503"],["PUSKESMAS KASSI-KASSI","PUSKESMAS","MAKASSAR","18010703"],["PUSKESMAS KEPULAUAN TANAKEKE","PUSKESMAS","KAB. TAKALAR","3241001"],["PUSKESMAS KOMARA","PUSKESMAS","KAB. TAKALAR","18020503"],["PUSKESMAS KOTA PANGKAJENE","PUSKESMAS","KAB. PANGKEP","18050104"],["PUSKESMAS LABBAKKANG","PUSKESMAS","KAB. PANGKEP","18050401"],["PUSKESMAS LAU","PUSKESMAS","KAB. MAROS","18040401"],["PUSKESMAS LAUWA","PUSKESMAS","KAB. GOWA","18031003"],["PUSKESMAS LAYANG","PUSKESMAS","MAKASSAR","18010402"],["PUSKESMAS LIUKANG KALMAS","PUSKESMAS","KAB. PANGKEP","18050901"],["PUSKESMAS LIUKANG TANGAYA","PUSKESMAS","KAB. PANGKEP","18050701"],["PUSKESMAS LIUKANG TUPABBIRING","PUSKESMAS","KAB. PANGKEP","18050801"],["PUSKESMAS MACCINI SAWAH","PUSKESMAS","MAKASSAR","18010602"],["PUSKESMAS MACCINI SOMBALA","PUSKESMAS","MAKASSAR","3420110"],["PUSKESMAS MAKKASAU","PUSKESMAS","MAKASSAR","18010301"],["PUSKESMAS MALIMONGAN BARU","PUSKESMAS","MAKASSAR","18010401"],["PUSKESMAS MALLAWA","PUSKESMAS","KAB. MAROS","18040501"],["PUSKESMAS MAMAJANG","PUSKESMAS","MAKASSAR","18010802"],["PUSKESMAS MANDAI","PUSKESMAS","KAB. MAROS","18040301"],["PUSKESMAS MANDALLE","PUSKESMAS","KAB. PANGKEP","18050602"],["PUSKESMAS MANGARABOMBANG","PUSKESMAS","KAB. TAKALAR","18020201"],["PUSKESMAS MANGASA","PUSKESMAS","MAKASSAR","18010704"],["PUSKESMAS MANUJU","PUSKESMAS","KAB. GOWA","3250702"],["PUSKESMAS MAPPAKASUNGGU","PUSKESMAS","KAB. TAKALAR","18020301"],["PUSKESMAS MARANG","PUSKESMAS","KAB. PANGKEP","18050501"],["PUSKESMAS MARDEKAYA","PUSKESMAS","MAKASSAR","18010603"],["PUSKESMAS MAROS BARU","PUSKESMAS","KAB. MAROS","3270404"],["PUSKESMAS MARUSU","PUSKESMAS","KAB. MAROS","18040403"],["PUSKESMAS MINASA TENE","PUSKESMAS","KAB. PANGKEP","18050101"],["PUSKESMAS MINASA UPA","PUSKESMAS","MAKASSAR","18010705"],["PUSKESMAS MONCOBALANG","PUSKESMAS","KAB. GOWA","18030403"],["PUSKESMAS MONCONGLOE","PUSKESMAS","KAB. MAROS","3270302"],["PUSKESMAS PABBENTENGANG","PUSKESMAS","KAB. GOWA","3250001"],["PUSKESMAS PACCELEKANG","PUSKESMAS","KAB. GOWA","3250103"],["PUSKESMAS PACCERAKANG","PUSKESMAS","MAKASSAR","3420111"],["PUSKESMAS PADANG LAMPE","PUSKESMAS","KAB. PANGKEP","18050502"],["PUSKESMAS PALLANGGA","PUSKESMAS","KAB. GOWA","18030401"],["PUSKESMAS PAMMANTAUANG","PUSKESMAS","KAB. PANGKEP","3280106"],["PUSKESMAS PAMPANG","PUSKESMAS","MAKASSAR","18010505"],["PUSKESMAS PANAMBUNGAN","PUSKESMAS","MAKASSAR","18010203"],["PUSKESMAS PARANGLOE","PUSKESMAS","KAB. GOWA","18030701"],["PUSKESMAS PARIGI","PUSKESMAS","KAB. GOWA","3250602"],["PUSKESMAS PATINGALOANG","PUSKESMAS","MAKASSAR","18011001"],["PUSKESMAS PATOPAKANG","PUSKESMAS","KAB. TAKALAR","18020202"],["PUSKESMAS PATTALLASSANG (GOWA)","PUSKESMAS","KAB. GOWA","18030802"],["PUSKESMAS PATTALLASSANG (TAKALAR)","PUSKESMAS","KAB. TAKALAR","18020401"],["PUSKESMAS PERTIWI","PUSKESMAS","MAKASSAR","18010201"],["PUSKESMAS POLOMBANGKENG SELATAN","PUSKESMAS","KAB. TAKALAR","18020402"],["PUSKESMAS POLOMBANGKENG UTARA","PUSKESMAS","KAB. TAKALAR","18020501"],["PUSKESMAS PULAU KODINGARENG","PUSKESMAS","MAKASSAR","3420104"],["PUSKESMAS PUNDATA BAJI","PUSKESMAS","KAB. PANGKEP","18050402"],["PUSKESMAS RAPPOKALLING","PUSKESMAS","MAKASSAR","18010903"],["PUSKESMAS SABUTUNG","PUSKESMAS","KAB. PANGKEP","3280107"],["PUSKESMAS SAILUS","PUSKESMAS","KAB. PANGKEP","3280108"],["PUSKESMAS SAMATA","PUSKESMAS","KAB. GOWA","18030102"],["PUSKESMAS SANROBONE","PUSKESMAS","KAB. TAKALAR","18020302"],["PUSKESMAS SAPAYA","PUSKESMAS","KAB. GOWA","18030202"],["PUSKESMAS SARAPPO","PUSKESMAS","KAB. PANGKEP","18050802"],["PUSKESMAS SEGERI","PUSKESMAS","KAB. PANGKEP","18050601"],["PUSKESMAS SIMBANG","PUSKESMAS","KAB. MAROS","3270102"],["PUSKESMAS SOMBA OPU","PUSKESMAS","KAB. GOWA","18030101"],["PUSKESMAS SUDIANG","PUSKESMAS","MAKASSAR","18011105"],["PUSKESMAS SUDIANG RAYA","PUSKESMAS","MAKASSAR","18011106"],["PUSKESMAS TABARINGAN","PUSKESMAS","MAKASSAR","18011002"],["PUSKESMAS TAMALANREA","PUSKESMAS","MAKASSAR","18011104"],["PUSKESMAS TAMALANREA JAYA","PUSKESMAS","MAKASSAR","3420117"],["PUSKESMAS TAMALATE","PUSKESMAS","MAKASSAR","18010702"],["PUSKESMAS TAMAMAUNG","PUSKESMAS","MAKASSAR","18010507"],["PUSKESMAS TAMANGAPA","PUSKESMAS","MAKASSAR","18010506"],["PUSKESMAS TAMAONA","PUSKESMAS","KAB. GOWA","18030602"],["PUSKESMAS TANRALILI","PUSKESMAS","KAB. MAROS","18040701"],["PUSKESMAS TARAKAN","PUSKESMAS","MAKASSAR","18010102"],["PUSKESMAS TARAWEANG","PUSKESMAS","KAB. PANGKEP","18050403"],["PUSKESMAS TINGGIMONCONG","PUSKESMAS","KAB. GOWA","18030601"],["PUSKESMAS TODDOPULI","PUSKESMAS","MAKASSAR","3420116"],["PUSKESMAS TOMPO BULU","PUSKESMAS","KAB. MAROS","18040702"],["PUSKESMAS TOMPOBULU","PUSKESMAS","KAB. GOWA","18030201"],["PUSKESMAS TONRORITA","PUSKESMAS","KAB. GOWA","18030901"],["PUSKESMAS TOWATA","PUSKESMAS","KAB. TAKALAR","18020502"],["PUSKESMAS TURIKALE","PUSKESMAS","KAB. MAROS","18040402"],["PUSKESMAS U.PANDANG BARU","PUSKESMAS","MAKASSAR","18010901"],["RSU D PRATAMA GOWA","RS KELAS D PRATAMA","KAB. GOWA","0325B022"],["RSUD PRATAMA TAKALAR","RS KELAS D PRATAMA","KAB. TAKALAR","0324B001"],["SANA KLINIK","KLINIK PRATAMA","MAKASSAR","0342U038"],["SATKES KOSEKHANUDNAS II","KLINIK TNI","MAKASSAR","3420015"],["SEMEN TONASA MEDICAL CENTRE","KLINIK PRATAMA","KAB. PANGKEP","0328B001"],["SOEBARKAH SPN BATUA","KLINIK POLRI","MAKASSAR","3420022"],["TRANS MEDICAL CLINIC","KLINIK PRATAMA","MAKASSAR","0342B115"],["YULINAR FITRIA FIRDIANI","TPMDG","MAKASSAR","0342G042"]];
+
+/* ---------- pencarian faskes ---------- */
+const bersih = s => s.toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+const IDX = DATA.map((r,i) => ({i, s:bersih(r[0])}));
+
+const cari = document.getElementById('cari');
+const daftar = document.getElementById('daftar');
+const kartu = document.getElementById('kartu');
+let dipilih = null, sorot = -1, tampil = [];
+
+function tandai(teks, kata){
+  if(!kata.length) return teks;
+  const p = teks.toLowerCase().indexOf(kata[0].toLowerCase());
+  if(p < 0) return teks;
+  return teks.slice(0,p) + '<mark>' + teks.slice(p, p+kata[0].length) + '</mark>' + teks.slice(p+kata[0].length);
+}
+
+function render(){
+  if(!tampil.length){
+    daftar.innerHTML = '<div class="nihil">Tidak ada faskes yang cocok. Coba kata kunci yang lebih pendek.</div>';
+    daftar.classList.add('tampil'); cari.setAttribute('aria-expanded','true'); return;
+  }
+  const kata = bersih(cari.value).split(' ').filter(Boolean);
+  daftar.innerHTML = tampil.slice(0,60).map((o,n) => {
+    const r = DATA[o.i];
+    return '<div class="pilihan" role="option" data-i="' + o.i + '" aria-selected="' + (n===sorot) + '">' +
+           '<b>' + tandai(r[0],kata) + '</b><span>' + r[1] + ' &middot; ' + r[2] + '</span></div>';
+  }).join('');
+  daftar.classList.add('tampil');
+  cari.setAttribute('aria-expanded','true');
+}
+
+function tutup(){
+  daftar.classList.remove('tampil'); cari.setAttribute('aria-expanded','false'); sorot = -1;
+}
+
+cari.addEventListener('input', () => {
+  dipilih = null; kartu.classList.remove('tampil'); hitung();
+  const kata = bersih(cari.value).split(' ').filter(Boolean);
+  if(!kata.length){ tampil = []; tutup(); return; }
+  tampil = IDX.filter(o => kata.every(k => o.s.includes(k)));
+  tampil.sort((a,b) => a.s.indexOf(kata[0]) - b.s.indexOf(kata[0]) || a.s.localeCompare(b.s));
+  sorot = tampil.length ? 0 : -1;
+  render();
+});
+
+cari.addEventListener('keydown', e => {
+  if(!daftar.classList.contains('tampil')) return;
+  const n = Math.min(tampil.length, 60);
+  if(e.key === 'ArrowDown'){ e.preventDefault(); sorot = (sorot+1) % n; render(); geser(); }
+  else if(e.key === 'ArrowUp'){ e.preventDefault(); sorot = (sorot-1+n) % n; render(); geser(); }
+  else if(e.key === 'Enter'){ e.preventDefault(); if(sorot >= 0) pilih(tampil[sorot].i); }
+  else if(e.key === 'Escape'){ tutup(); }
+});
+
+function geser(){
+  const el = daftar.querySelector('[aria-selected=true]');
+  if(el) el.scrollIntoView({block:'nearest'});
+}
+
+daftar.addEventListener('mousedown', e => {
+  const o = e.target.closest('.pilihan');
+  if(o){ e.preventDefault(); pilih(+o.dataset.i); }
+});
+
+document.addEventListener('click', e => { if(!e.target.closest('.combo')) tutup(); });
+
+function pilih(i){
+  dipilih = DATA[i];
+  document.getElementById('k-nama').textContent = dipilih[0];
+  document.getElementById('k-jenis').textContent = dipilih[1];
+  document.getElementById('k-kab').textContent = dipilih[2];
+  document.getElementById('k-kode').textContent = dipilih[3];
+  kartu.classList.add('tampil');
+  cari.value = dipilih[0];
+  cari.classList.remove('salah');
+  document.getElementById('err-faskes').classList.remove('tampil');
+  tutup(); hitung();
+  cekTerkirim(dipilih[3]);
+  document.getElementById('nama').focus({preventScroll:true});
+}
+
+document.getElementById('ganti').addEventListener('click', () => {
+  dipilih = null; kartu.classList.remove('tampil'); cari.value = '';
+  bukaKunci(); cari.focus(); hitung();
+});
+
+/* ---------- satu faskes satu kiriman ---------- */
+const kotakSudah = document.getElementById('sudah');
+let terkunci = false;
+
+function bukaKunci(){
+  terkunci = false;
+  kotakSudah.className = 'sudah';
+  kotakSudah.textContent = '';
+  aturTombol();
+}
+
+function kunci(pengirim){
+  terkunci = true;
+  kotakSudah.className = 'sudah tampil terkunci';
+  kotakSudah.textContent = 'Faskes ini sudah mengirimkan eviden.';
+  const b = document.createElement('b');
+  b.textContent = 'Dikirim oleh ' + pengirim;
+  kotakSudah.appendChild(b);
+  aturTombol();
+}
+
+function aturTombol(){
+  const t = document.getElementById('kirim');
+  t.disabled = terkunci;
+  t.textContent = terkunci ? 'Sudah pernah dikirim' : 'Kirim eviden';
+}
+
+async function cekTerkirim(kode){
+  bukaKunci();
+  kotakSudah.className = 'sudah tampil periksa';
+  kotakSudah.textContent = 'Memeriksa kiriman sebelumnya\u2026';
+  try{
+    const res = await fetch(URL_TUJUAN, {
+      method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({aksi:'cek', kodeFktp:kode})
+    });
+    const out = await res.json();
+    if(!dipilih || dipilih[3] !== kode) return;
+    if(out.sudah) kunci(out.pengirim || 'petugas sebelumnya');
+    else bukaKunci();
+  }catch(err){
+    bukaKunci();
+  }
+}
+
+/* ---------- jabatan lainnya ---------- */
+const jab = document.getElementById('jabatan'), isianLain = document.getElementById('isian-lain');
+jab.addEventListener('change', () => {
+  isianLain.hidden = jab.value !== 'Administrasi Lainnya';
+  if(isianLain.hidden) document.getElementById('lain').value = '';
+  hitung();
+});
+
+/* ---------- unggah foto ---------- */
+const foto = {};
+
+['jl','pr'].forEach(function(k){
+  foto[k] = '';
+  const input  = document.getElementById('f-' + k);
+  const kotak  = document.getElementById('kotak-' + k);
+  const sedang = document.getElementById('sedang-' + k);
+  const pra    = document.getElementById('pra-' + k);
+  const er     = document.getElementById('err-' + k);
+
+  input.addEventListener('change', function(){
+    const berkas = input.files[0];
+    if(!berkas) return;
+    sedang.classList.add('tampil');
+    kotak.style.display = 'none';
+    const baca = new FileReader();
+    baca.onload = function(){ kecilkan(baca.result); };
+    baca.onerror = tolak;
+    baca.readAsDataURL(berkas);
+  });
+
+  function kecilkan(dataUrl){
+    const im = new Image();
+    im.onload = function(){
+      const maks = 1500;
+      let w = im.width, h = im.height;
+      if(w > maks || h > maks){
+        const r = Math.min(maks/w, maks/h);
+        w = Math.round(w*r); h = Math.round(h*r);
+      }
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      const cc = c.getContext('2d');
+      cc.fillStyle = '#fff'; cc.fillRect(0,0,w,h);
+      cc.drawImage(im, 0, 0, w, h);
+      foto[k] = c.toDataURL('image/jpeg', 0.82);
+      document.getElementById('img-' + k).src = foto[k];
+      document.getElementById('info-' + k).textContent =
+        w + ' \u00d7 ' + h + ' piksel \u00b7 ' + Math.round(foto[k].length*0.75/1024) + ' KB';
+      sedang.classList.remove('tampil');
+      pra.classList.add('tampil');
+      kotak.classList.remove('salah');
+      er.classList.remove('tampil');
+      hitung();
+    };
+    im.onerror = tolak;
+    im.src = dataUrl;
+  }
+
+  function tolak(){
+    sedang.classList.remove('tampil');
+    kotak.style.display = '';
+    input.value = ''; foto[k] = '';
+    er.textContent = 'Foto tidak bisa dibaca. Coba pilih foto lain.';
+    er.classList.add('tampil');
+    hitung();
+  }
+
+  document.getElementById('tukar-' + k).addEventListener('click', function(){
+    foto[k] = ''; input.value = '';
+    pra.classList.remove('tampil');
+    kotak.style.display = '';
+    hitung();
+  });
+});
+
+/* ---------- bilah kemajuan ---------- */
+const bilah = document.getElementById('bilah');
+function hitung(){
+  const cek = [
+    !!dipilih,
+    document.getElementById('nama').value.trim().length >= 3,
+    !!jab.value && (isianLain.hidden || document.getElementById('lain').value.trim().length >= 2),
+    document.getElementById('hp').value.replace(/\D/g,'').length >= 10,
+    !!foto.jl, !!foto.pr,
+    document.getElementById('konf').checked
+  ];
+  bilah.style.width = Math.round(cek.filter(Boolean).length / cek.length * 100) + '%';
+}
+['nama','lain','hp','konf'].forEach(id =>
+  document.getElementById(id).addEventListener('input', hitung));
+document.getElementById('konf').addEventListener('change', hitung);
+
+/* ---------- validasi ---------- */
+function tandaiSalah(idEl, idPesan, ya){
+  const el = idEl && document.getElementById(idEl);
+  if(el) el.classList.toggle('salah', ya);
+  document.getElementById(idPesan).classList.toggle('tampil', ya);
+  return ya;
+}
+
+function periksa(){
+  let n = 0, awal = null;
+  const cek = (buruk, idEl, idPesan) => {
+    if(tandaiSalah(idEl, idPesan, buruk)){
+      n++; if(!awal) awal = document.getElementById(idEl) || document.getElementById(idPesan);
+    }
+  };
+  cek(!dipilih || cari.value !== dipilih[0], 'cari', 'err-faskes');
+  cek(document.getElementById('nama').value.trim().length < 3, 'nama', 'err-nama');
+  cek(!jab.value, 'jabatan', 'err-jabatan');
+  if(!isianLain.hidden) cek(document.getElementById('lain').value.trim().length < 2, 'lain', 'err-lain');
+  cek(document.getElementById('hp').value.replace(/\D/g,'').length < 10, 'hp', 'err-hp');
+  cek(!foto.jl, 'kotak-jl', 'err-jl');
+  cek(!foto.pr, 'kotak-pr', 'err-pr');
+  const setuju = document.getElementById('konf').checked;
+  document.getElementById('kotak-konf').classList.toggle('salah', !setuju);
+  if(tandaiSalah(null, 'err-konf', !setuju)) n++;
+  return {n, awal};
+}
+
+/* ---------- kirim ---------- */
+const tombol = document.getElementById('kirim');
+const gagal = document.getElementById('gagal');
+const ringkas = document.getElementById('ringkas');
+
+document.getElementById('form').addEventListener('submit', async e => {
+  e.preventDefault();
+  gagal.classList.remove('tampil');
+  const {n, awal} = periksa();
+  if(n){
+    ringkas.textContent = n === 1 ? 'Ada 1 isian yang perlu diperbaiki.' : 'Ada ' + n + ' isian yang perlu diperbaiki.';
+    ringkas.classList.add('tampil');
+    if(awal) awal.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  ringkas.classList.remove('tampil');
+
+  tombol.disabled = true; tombol.textContent = 'Mengirim\u2026';
+  const isi = {
+    namaFktp: dipilih[0], jenisFktp: dipilih[1], kabKota: dipilih[2], kodeFktp: dipilih[3],
+    nama: document.getElementById('nama').value.trim(),
+    jabatan: jab.value === 'Administrasi Lainnya'
+             ? 'Administrasi Lainnya - ' + document.getElementById('lain').value.trim() : jab.value,
+    hp: document.getElementById('hp').value.trim(),
+    fotoJanji: foto.jl,
+    fotoPoros: foto.pr
+  };
+
+  try{
+    const res = await fetch(URL_TUJUAN, {
+      method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(isi)
+    });
+    const out = await res.json();
+    if(out.sudah){ kunci(out.pengirim || 'petugas sebelumnya');
+      kartu.scrollIntoView({behavior:'smooth', block:'center'}); return; }
+    if(out.ok !== true) throw new Error(out.pesan || 'ditolak server');
+    document.getElementById('pesan-selesai').textContent =
+      'Terima kasih, ' + isi.nama.split(' ')[0] + '. Eviden ' + isi.namaFktp + ' sudah kami terima.';
+    document.getElementById('layar-isi').style.display = 'none';
+    document.getElementById('layar-selesai').classList.add('tampil');
+    window.scrollTo(0,0);
+  }catch(err){
+    gagal.textContent = 'Eviden gagal terkirim. Periksa koneksi internet Anda lalu tekan Kirim eviden sekali lagi. Jangan tutup halaman ini.';
+    gagal.classList.add('tampil');
+  }finally{
+    aturTombol();
+  }
+});
+
+hitung();
+</script>
+</body>
+</html>
