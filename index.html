@@ -125,7 +125,7 @@ select{
 .sudah{display:none;padding:13px 16px;font-size:.87rem;line-height:1.5;border-top:1px solid #c6ded2}
 .sudah.tampil{display:block}
 .sudah.periksa{background:var(--kertas);color:var(--tinta-3);font-weight:500}
-.sudah.terkunci{background:var(--merah-bg);color:var(--merah);border-top-color:var(--merah-garis)}
+.sudah.perbarui{background:var(--amber-bg);color:var(--amber);border-top-color:var(--amber-garis)}
 .sudah b{display:block;font-weight:700;margin-top:3px}
 
 /* ---------- unggah ---------- */
@@ -142,6 +142,8 @@ select{
 .unggah input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;
   font-size:0;z-index:2}
 .unggah svg,.unggah b,.unggah small{position:relative;z-index:1;pointer-events:none}
+.opsi{display:none;margin:-2px 0 8px;font-size:.84rem;color:var(--amber);font-weight:500;line-height:1.45}
+.opsi.tampil{display:block}
 .sedang{display:none;padding:19px;text-align:center;color:var(--tinta-3);font-size:.89rem;
   border:1.5px solid var(--garis);border-radius:10px}
 .sedang.tampil{display:block}
@@ -275,7 +277,8 @@ footer{padding:20px 24px calc(14px + env(safe-area-inset-bottom,0px));text-align
       <p class="ket">Foto media yang terpasang di faskes Anda. Boleh langsung dari kamera, ukuran besar dikecilkan otomatis.</p>
 
       <div class="isian">
-        <div class="tajuk">Eviden Janji Layanan <span class="wajib">*</span></div>
+        <div class="tajuk">Eviden Janji Layanan <span class="wajib" id="w-jl">*</span></div>
+        <p class="opsi" id="opsi-jl">Boleh dilewati. Foto Janji Layanan yang lama tetap dipakai bila tidak diganti.</p>
         <label class="unggah" id="kotak-jl" for="f-jl">
           <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0e6b4f" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
             <rect x="2.5" y="5" width="19" height="15" rx="2.5"/><circle cx="12" cy="12.5" r="3.6"/><path d="M8 5l1.4-2h5.2L16 5"/>
@@ -294,7 +297,8 @@ footer{padding:20px 24px calc(14px + env(safe-area-inset-bottom,0px));text-align
       </div>
 
       <div class="isian">
-        <div class="tajuk">Eviden POROS <span class="wajib">*</span></div>
+        <div class="tajuk">Eviden POROS <span class="wajib" id="w-pr">*</span></div>
+        <p class="opsi" id="opsi-pr">Boleh dilewati. Foto POROS yang lama tetap dipakai bila tidak diganti.</p>
         <label class="unggah" id="kotak-pr" for="f-pr">
           <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0e6b4f" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
             <rect x="2.5" y="5" width="19" height="15" rx="2.5"/><circle cx="12" cy="12.5" r="3.6"/><path d="M8 5l1.4-2h5.2L16 5"/>
@@ -328,7 +332,7 @@ footer{padding:20px 24px calc(14px + env(safe-area-inset-bottom,0px));text-align
 
 <div class="selesai" id="layar-selesai">
   <div class="centang"><svg width="29" height="29" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 7"/></svg></div>
-  <h2>Eviden sudah terkirim</h2>
+  <h2 id="judul-selesai">Eviden sudah terkirim</h2>
   <p id="pesan-selesai"></p>
 </div>
 
@@ -422,38 +426,57 @@ function pilih(i){
 
 document.getElementById('ganti').addEventListener('click', () => {
   dipilih = null; kartu.classList.remove('tampil'); cari.value = '';
-  bukaKunci(); cari.focus(); hitung();
+  jadiBaru(); cari.focus(); hitung();
 });
 
-/* ---------- satu faskes satu kiriman ---------- */
+/* ---------- kiriman baru atau perbaikan kiriman lama ---------- */
 const kotakSudah = document.getElementById('sudah');
-let terkunci = false;
+let mode = 'baru';   /* 'baru' atau 'perbarui' */
 
-function bukaKunci(){
-  terkunci = false;
+function jadiBaru(){
+  mode = 'baru';
   kotakSudah.className = 'sudah';
   kotakSudah.textContent = '';
   aturTombol();
 }
 
-function kunci(pengirim){
-  terkunci = true;
-  kotakSudah.className = 'sudah tampil terkunci';
-  kotakSudah.textContent = 'Faskes ini sudah mengirimkan eviden.';
+function jadiPerbarui(pengirim, waktu){
+  mode = 'perbarui';
+  kotakSudah.className = 'sudah tampil perbarui';
+  kotakSudah.textContent = 'Faskes ini sudah pernah mengirim eviden'
+    + (waktu ? ' pada ' + waktu : '') + ' oleh ' + pengirim + '.';
   const b = document.createElement('b');
-  b.textContent = 'Dikirim oleh ' + pengirim;
+  b.textContent = 'Kiriman baru akan menggantikan data dan foto yang lama.';
   kotakSudah.appendChild(b);
   aturTombol();
 }
 
 function aturTombol(){
   const t = document.getElementById('kirim');
-  t.disabled = terkunci;
-  t.textContent = terkunci ? 'Sudah pernah dikirim' : 'Kirim eviden';
+  t.disabled = false;
+  t.textContent = mode === 'perbarui' ? 'Perbarui eviden' : 'Kirim eviden';
+  aturFoto();
+}
+
+/* Pada kiriman ulang, foto boleh diganti salah satu saja. Yang tidak
+   diganti tetap memakai foto lama yang sudah tersimpan. */
+function aturFoto(){
+  const bebas = mode === 'perbarui';
+  ['jl','pr'].forEach(k => {
+    const bintang = document.getElementById('w-' + k);
+    bintang.textContent = bebas ? '' : '*';
+    bintang.className = bebas ? 'opsional' : 'wajib';
+    document.getElementById('opsi-' + k).classList.toggle('tampil', bebas);
+    if(bebas){
+      document.getElementById('kotak-' + k).classList.remove('salah');
+      document.getElementById('err-' + k).classList.remove('tampil');
+    }
+  });
+  hitung();
 }
 
 async function cekTerkirim(kode){
-  bukaKunci();
+  jadiBaru();
   kotakSudah.className = 'sudah tampil periksa';
   kotakSudah.textContent = 'Memeriksa kiriman sebelumnya\u2026';
   try{
@@ -463,17 +486,17 @@ async function cekTerkirim(kode){
     });
     const out = await res.json();
     if(!dipilih || dipilih[3] !== kode) return;
-    if(out.sudah) kunci(out.pengirim || 'petugas sebelumnya');
-    else bukaKunci();
+    if(out.sudah) jadiPerbarui(out.pengirim || 'petugas sebelumnya', out.waktu || '');
+    else jadiBaru();
   }catch(err){
-    bukaKunci();
+    jadiBaru();
   }
 }
 
 /* ---------- jabatan lainnya ---------- */
 const jab = document.getElementById('jabatan'), isianLain = document.getElementById('isian-lain');
 jab.addEventListener('change', () => {
-  isianLain.hidden = jab.value !== 'Administrasi Lainnya';
+  isianLain.hidden = jab.value !== 'Admin Lainnya';
   if(isianLain.hidden) document.getElementById('lain').value = '';
   hitung();
 });
@@ -573,7 +596,8 @@ function hitung(){
     document.getElementById('nama').value.trim().length >= 3,
     !!jab.value && (isianLain.hidden || document.getElementById('lain').value.trim().length >= 2),
     document.getElementById('hp').value.replace(/\D/g,'').length >= 10,
-    !!foto.jl, !!foto.pr,
+    mode === 'perbarui' || !!foto.jl,
+    mode === 'perbarui' || !!foto.pr,
     document.getElementById('konf').checked
   ];
   bilah.style.width = Math.round(cek.filter(Boolean).length / cek.length * 100) + '%';
@@ -602,8 +626,10 @@ function periksa(){
   cek(!jab.value, 'jabatan', 'err-jabatan');
   if(!isianLain.hidden) cek(document.getElementById('lain').value.trim().length < 2, 'lain', 'err-lain');
   cek(document.getElementById('hp').value.replace(/\D/g,'').length < 10, 'hp', 'err-hp');
-  cek(!foto.jl, 'kotak-jl', 'err-jl');
-  cek(!foto.pr, 'kotak-pr', 'err-pr');
+  if(mode !== 'perbarui'){
+    cek(!foto.jl, 'kotak-jl', 'err-jl');
+    cek(!foto.pr, 'kotak-pr', 'err-pr');
+  }
   const setuju = document.getElementById('konf').checked;
   document.getElementById('kotak-konf').classList.toggle('salah', !setuju);
   if(tandaiSalah(null, 'err-konf', !setuju)) n++;
@@ -627,12 +653,26 @@ document.getElementById('form').addEventListener('submit', async e => {
   }
   ringkas.classList.remove('tampil');
 
-  tombol.disabled = true; tombol.textContent = 'Mengirim\u2026';
+  if(mode === 'perbarui'){
+    const ganti = [];
+    if(foto.jl) ganti.push('foto Janji Layanan');
+    if(foto.pr) ganti.push('foto POROS');
+    const lanjut = confirm('Data pengirim ' + dipilih[0] + ' akan diganti'
+      + (ganti.length ? ', begitu juga ' + ganti.join(' dan ') + '.' : '.')
+      + (ganti.length < 2 ? '\n\nFoto yang tidak Anda unggah ulang tetap memakai yang lama.' : '')
+      + '\n\nLanjutkan?');
+    if(!lanjut) return;
+  }
+
+  tombol.disabled = true;
+  tombol.textContent = mode === 'perbarui' ? 'Memperbarui\u2026' : 'Mengirim\u2026';
   const isi = {
+    aksi: 'simpan',
+    perbarui: mode === 'perbarui',
     namaFktp: dipilih[0], jenisFktp: dipilih[1], kabKota: dipilih[2], kodeFktp: dipilih[3],
     nama: document.getElementById('nama').value.trim(),
-    jabatan: jab.value === 'Administrasi Lainnya'
-             ? 'Administrasi Lainnya - ' + document.getElementById('lain').value.trim() : jab.value,
+    jabatan: jab.value === 'Admin Lainnya'
+             ? 'Admin Lainnya - ' + document.getElementById('lain').value.trim() : jab.value,
     hp: document.getElementById('hp').value.trim(),
     fotoJanji: foto.jl,
     fotoPoros: foto.pr
@@ -643,16 +683,19 @@ document.getElementById('form').addEventListener('submit', async e => {
       method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(isi)
     });
     const out = await res.json();
-    if(out.sudah){ kunci(out.pengirim || 'petugas sebelumnya');
-      kartu.scrollIntoView({behavior:'smooth', block:'center'}); return; }
     if(out.ok !== true) throw new Error(out.pesan || 'ditolak server');
+    const diganti = out.diperbarui === true || mode === 'perbarui';
+    document.getElementById('judul-selesai').textContent =
+      diganti ? 'Eviden sudah diperbarui' : 'Eviden sudah terkirim';
     document.getElementById('pesan-selesai').textContent =
-      'Terima kasih, ' + isi.nama.split(' ')[0] + '. Eviden ' + isi.namaFktp + ' sudah kami terima.';
+      'Terima kasih, ' + isi.nama.split(' ')[0] + '. ' + (diganti
+        ? 'Data eviden ' + isi.namaFktp + ' sudah diganti dengan kiriman terbaru Anda.'
+        : 'Eviden ' + isi.namaFktp + ' sudah kami terima.');
     document.getElementById('layar-isi').style.display = 'none';
     document.getElementById('layar-selesai').classList.add('tampil');
     window.scrollTo(0,0);
   }catch(err){
-    gagal.textContent = 'Eviden gagal terkirim. Periksa koneksi internet Anda lalu tekan Kirim eviden sekali lagi. Jangan tutup halaman ini.';
+    gagal.textContent = 'Eviden gagal terkirim. Periksa koneksi internet Anda lalu tekan tombol kirim sekali lagi. Jangan tutup halaman ini.';
     gagal.classList.add('tampil');
   }finally{
     aturTombol();
